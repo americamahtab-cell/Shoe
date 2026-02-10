@@ -10,6 +10,7 @@ import {
   DialogContent,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { useCurrency } from '@/context/CurrencyContext';
 
 interface ProductCardProps {
   shoe: Shoe;
@@ -19,6 +20,7 @@ interface ProductCardProps {
 const ProductCard = ({ shoe, onAddToCart }: ProductCardProps) => {
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const { formatPrice } = useCurrency();
 
   // Safety check for images array
   const images = shoe.images || [];
@@ -112,7 +114,7 @@ const ProductCard = ({ shoe, onAddToCart }: ProductCardProps) => {
               <h3 className="font-bold text-lg leading-tight">{shoe.name}</h3>
               <p className="text-sm text-muted-foreground">{shoe.category}</p>
             </div>
-            <p className="font-black text-lg">${shoe.price}</p>
+            <p className="font-black text-lg">{formatPrice(shoe.price)}</p>
           </div>
         </div>
       </CardContent>

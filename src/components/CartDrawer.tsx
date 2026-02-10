@@ -13,6 +13,7 @@ import { Shoe } from '@/data/shoes';
 import { Trash2, ShoppingBag } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
+import { useCurrency } from '@/context/CurrencyContext';
 
 interface CartDrawerProps {
   isOpen: boolean;
@@ -22,6 +23,7 @@ interface CartDrawerProps {
 }
 
 const CartDrawer = ({ isOpen, onClose, items, onRemove }: CartDrawerProps) => {
+  const { formatPrice } = useCurrency();
   const total = items.reduce((sum, item) => sum + item.price, 0);
 
   return (
@@ -58,7 +60,7 @@ const CartDrawer = ({ isOpen, onClose, items, onRemove }: CartDrawerProps) => {
                         <p className="text-xs text-muted-foreground">{item.category}</p>
                       </div>
                       <div className="flex items-center justify-between">
-                        <p className="font-black">${item.price}</p>
+                        <p className="font-black">{formatPrice(item.price)}</p>
                         <Button 
                           variant="ghost" 
                           size="icon" 
@@ -82,7 +84,7 @@ const CartDrawer = ({ isOpen, onClose, items, onRemove }: CartDrawerProps) => {
             <div className="flex flex-col gap-4">
               <div className="flex items-center justify-between text-lg font-bold">
                 <span>Total</span>
-                <span>${total}</span>
+                <span>{formatPrice(total)}</span>
               </div>
               <Button className="w-full h-14 rounded-2xl text-base font-bold">
                 Checkout Now

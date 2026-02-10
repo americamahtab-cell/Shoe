@@ -8,15 +8,26 @@ import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Separator } from '@/components/ui/separator';
 import { 
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { 
   Store, 
   Bell, 
   Shield, 
   Globe,
-  Save
+  Save,
+  Coins
 } from 'lucide-react';
 import { showSuccess } from '@/utils/toast';
+import { useCurrency, currencies } from '@/context/CurrencyContext';
 
 const SettingsManager = () => {
+  const { currency, setCurrencyByCode } = useCurrency();
+
   const handleSave = () => {
     showSuccess("Settings updated successfully");
   };
@@ -29,6 +40,51 @@ const SettingsManager = () => {
       </div>
 
       <div className="grid gap-8">
+        <Card className="border-none bg-card shadow-sm rounded-3xl overflow-hidden">
+          <CardHeader>
+            <div className="flex items-center gap-2">
+              <Coins className="h-5 w-5 text-primary" />
+              <CardTitle>Localization & Currency</CardTitle>
+            </div>
+            <CardDescription>Set your store's default currency and region.</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div className="grid gap-4 md:grid-cols-2">
+              <div className="space-y-2">
+                <Label htmlFor="currency">Store Currency</Label>
+                <Select 
+                  defaultValue={currency.code} 
+                  onValueChange={(value) => setCurrencyByCode(value)}
+                >
+                  <SelectTrigger className="rounded-xl h-11">
+                    <SelectValue placeholder="Select currency" />
+                  </SelectTrigger>
+                  <SelectContent className="rounded-xl">
+                    {Object.values(currencies).map((c) => (
+                      <SelectItem key={c.code} value={c.code}>
+                        {c.code} ({c.symbol})
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="timezone">Timezone</Label>
+                <Select defaultValue="UTC+6">
+                  <SelectTrigger className="rounded-xl h-11">
+                    <SelectValue placeholder="Select timezone" />
+                  </SelectTrigger>
+                  <SelectContent className="rounded-xl">
+                    <SelectItem value="UTC+6">Dhaka (UTC+6)</SelectItem>
+                    <SelectItem value="UTC+0">London (UTC+0)</SelectItem>
+                    <SelectItem value="UTC-5">New York (UTC-5)</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
         <Card className="border-none bg-card shadow-sm rounded-3xl overflow-hidden">
           <CardHeader>
             <div className="flex items-center gap-2">
@@ -78,25 +134,6 @@ const SettingsManager = () => {
                 <p className="text-sm text-muted-foreground">Notify when products are low in stock.</p>
               </div>
               <Switch defaultChecked />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="border-none bg-card shadow-sm rounded-3xl overflow-hidden">
-          <CardHeader>
-            <div className="flex items-center gap-2">
-              <Shield className="h-5 w-5 text-primary" />
-              <CardTitle>Security</CardTitle>
-            </div>
-            <CardDescription>Manage your account security.</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            <div className="flex items-center justify-between">
-              <div className="space-y-0.5">
-                <Label>Two-Factor Authentication</Label>
-                <p className="text-sm text-muted-foreground">Add an extra layer of security to your account.</p>
-              </div>
-              <Switch />
             </div>
           </CardContent>
         </Card>
