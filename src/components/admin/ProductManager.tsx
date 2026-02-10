@@ -40,6 +40,8 @@ import { showSuccess } from '@/utils/toast';
 const ProductManager = () => {
   const [shoes, setShoes] = useState<Shoe[]>(initialShoes);
   const [searchTerm, setSearchTerm] = useState('');
+  const [editingShoe, setEditingShoe] = useState<Shoe | null>(null);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   const filteredShoes = shoes.filter(shoe => 
     shoe.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -51,6 +53,19 @@ const ProductManager = () => {
     showSuccess("Product deleted successfully");
   };
 
+  const handleSave = (e: React.FormEvent) => {
+    e.preventDefault();
+    // In a real app, we'd handle form data here
+    setIsDialogOpen(false);
+    setEditingShoe(null);
+    showSuccess(editingShoe ? "Product updated" : "Product added");
+  };
+
+  const openEditDialog = (shoe: Shoe) => {
+    setEditingShoe(shoe);
+    setIsDialogOpen(true);
+  };
+
   return (
     <div className="space-y-8">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -59,39 +74,64 @@ const ProductManager = () => {
           <p className="text-muted-foreground">Manage your sneaker inventory and pricing.</p>
         </div>
         
-        <Dialog>
+        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
-            <Button className="rounded-xl font-bold h-12 px-6">
+            <Button className="rounded-xl font-bold h-12 px-6" onClick={() => setEditingShoe(null)}>
               <Plus className="mr-2 h-5 w-5" /> Add New Product
             </Button>
           </DialogTrigger>
           <DialogContent className="sm:max-w-[425px] rounded-3xl">
             <DialogHeader>
-              <DialogTitle className="text-2xl font-black">ADD PRODUCT</DialogTitle>
+              <DialogTitle className="text-2xl font-black">
+                {editingShoe ? 'EDIT PRODUCT' : 'ADD PRODUCT'}
+              </DialogTitle>
             </DialogHeader>
-            <div className="grid gap-4 py-4">
+            <form onSubmit={handleSave} className="grid gap-4 py-4">
               <div className="grid gap-2">
                 <Label htmlFor="name">Product Name</Label>
-                <Input id="name" placeholder="e.g. Air Jordan 1" className="rounded-xl" />
+                <Input 
+                  id="name" 
+                  defaultValue={editingShoe?.name} 
+                  placeholder="e.g. Air Jordan 1" 
+                  className="rounded-xl" 
+                />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="grid gap-2">
                   <Label htmlFor="brand">Brand</Label>
-                  <Input id="brand" placeholder="Nike" className="rounded-xl" />
+                  <Input 
+                    id="brand" 
+                    defaultValue={editingShoe?.brand} 
+                    placeholder="Nike" 
+                    className="rounded-xl" 
+                  />
                 </div>
                 <div className="grid gap-2">
                   <Label htmlFor="price">Price ($)</Label>
-                  <Input id="price" type="number" placeholder="150" className="rounded-xl" />
+                  <Input 
+                    id="price" 
+                    type="number" 
+                    defaultValue={editingShoe?.price} 
+                    placeholder="150" 
+                    className="rounded-xl" 
+                  />
                 </div>
               </div>
               <div className="grid gap-2">
                 <Label htmlFor="image">Image URL</Label>
-                <Input id="image" placeholder="https://..." className="rounded-xl" />
+                <Input 
+                  id="image" 
+                  defaultValue={editingShoe?.image} 
+                  placeholder="https://..." 
+                  className="rounded-xl" 
+                />
               </div>
-            </div>
-            <DialogFooter>
-              <Button type="submit" className="w-full rounded-xl h-12 font-bold">Save Product</Button>
-            </DialogFooter>
+              <DialogFooter className="mt-4">
+                <Button type="submit" className="w-full rounded-xl h-12 font-bold">
+                  {editingShoe ? 'Update Product' : 'Save Product'}
+                </Button>
+              </DialogFooter>
+            </form>
           </DialogContent>
         </Dialog>
       </div>
@@ -151,7 +191,7 @@ const ProductManager = () => {
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end" className="rounded-xl">
-                      <DropdownMenuItem className="gap-2 cursor-pointer">
+                      <DropdownMenuItem className="gap-2 cursor-pointer" onClick={() => openEditDialog(shoe)}>
                         <Edit className="h-4 w-4" /> Edit
                       </DropdownMenuItem>
                       <DropdownMenuItem className="gap-2 cursor-pointer">
