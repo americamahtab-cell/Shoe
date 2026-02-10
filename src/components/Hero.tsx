@@ -34,14 +34,6 @@ const Hero = () => {
               >
                 Shop Now <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
-              <Button 
-                size="lg" 
-                variant="outline" 
-                className="rounded-full px-8 h-14 text-base font-bold"
-                onClick={scrollToProducts}
-              >
-                View Collection
-              </Button>
             </div>
           </div>
           <div className="relative">
