@@ -1,14 +1,22 @@
 "use client";
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
+import { useProducts } from '@/context/ProductContext';
 
 const categories = ['Lifestyle', 'Running', 'Basketball', 'Training'];
-const brands = ['Nike', 'Adidas', 'Jordan'];
 
 const FilterSidebar = () => {
+  const { products } = useProducts();
+
+  // Dynamically get unique brands from products
+  const dynamicBrands = useMemo(() => {
+    const brandsSet = new Set(products.map(p => p.brand));
+    return Array.from(brandsSet).sort();
+  }, [products]);
+
   return (
     <div className="flex flex-col gap-8">
       <div>
@@ -28,14 +36,18 @@ const FilterSidebar = () => {
       <div>
         <h3 className="text-lg font-bold mb-4">Brands</h3>
         <div className="space-y-3">
-          {brands.map((brand) => (
-            <div key={brand} className="flex items-center space-x-2">
-              <Checkbox id={brand} className="rounded-md" />
-              <Label htmlFor={brand} className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-                {brand}
-              </Label>
-            </div>
-          ))}
+          {dynamicBrands.length > 0 ? (
+            dynamicBrands.map((brand) => (
+              <div key={brand} className="flex items-center space-x-2">
+                <Checkbox id={brand} className="rounded-md" />
+                <Label htmlFor={brand} className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                  {brand}
+                </Label>
+              </div>
+            ))
+          ) : (
+            <p className="text-sm text-muted-foreground italic">No brands found</p>
+          )}
         </div>
       </div>
 
