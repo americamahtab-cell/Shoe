@@ -4,7 +4,8 @@ import React, { useState } from 'react';
 import { Shoe } from '@/data/shoes';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Plus, ZoomIn, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Plus, ZoomIn, ChevronLeft, ChevronRight, Eye } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import {
   Dialog,
   DialogContent,
@@ -22,7 +23,6 @@ const ProductCard = ({ shoe, onAddToCart }: ProductCardProps) => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const { formatPrice } = useCurrency();
 
-  // Safety check for images array
   const images = shoe.images || [];
   const hasImages = images.length > 0;
   const currentImage = hasImages ? images[currentImageIndex] : '/placeholder.svg';
@@ -89,16 +89,6 @@ const ProductCard = ({ shoe, onAddToCart }: ProductCardProps) => {
               >
                 <ChevronRight className="h-4 w-4" />
               </Button>
-              
-              {/* Dots Indicator */}
-              <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5">
-                {images.map((_, i) => (
-                  <div 
-                    key={i} 
-                    className={`h-1.5 w-1.5 rounded-full transition-all ${i === currentImageIndex ? 'bg-primary w-3' : 'bg-primary/30'}`}
-                  />
-                ))}
-              </div>
             </>
           )}
 
@@ -107,15 +97,24 @@ const ProductCard = ({ shoe, onAddToCart }: ProductCardProps) => {
               {shoe.brand}
             </span>
           </div>
+
+          <Link 
+            to={`/product/${shoe.id}`}
+            className="absolute top-4 right-4 h-10 w-10 rounded-full bg-background/80 backdrop-blur-sm flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all hover:bg-primary hover:text-white"
+          >
+            <Eye className="h-5 w-5" />
+          </Link>
         </div>
         <div className="p-6">
-          <div className="flex justify-between items-start mb-2">
-            <div>
-              <h3 className="font-bold text-lg leading-tight">{shoe.name}</h3>
-              <p className="text-sm text-muted-foreground">{shoe.category}</p>
+          <Link to={`/product/${shoe.id}`} className="hover:underline">
+            <div className="flex justify-between items-start mb-2">
+              <div>
+                <h3 className="font-bold text-lg leading-tight">{shoe.name}</h3>
+                <p className="text-sm text-muted-foreground">{shoe.category}</p>
+              </div>
+              <p className="font-black text-lg">{formatPrice(shoe.price)}</p>
             </div>
-            <p className="font-black text-lg">{formatPrice(shoe.price)}</p>
-          </div>
+          </Link>
         </div>
       </CardContent>
       <CardFooter className="p-6 pt-0">

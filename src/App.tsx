@@ -7,6 +7,7 @@ import { ProductProvider } from "@/context/ProductContext";
 import { CurrencyProvider } from "@/context/CurrencyContext";
 import Index from "./pages/Index";
 import Admin from "./pages/Admin";
+import ProductDetails from "./pages/ProductDetails";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -22,6 +23,7 @@ const App = () => (
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/adminpanel" element={<Admin />} />
+              <Route path="/product/:id" element={<ProductDetails />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>

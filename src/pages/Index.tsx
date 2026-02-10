@@ -11,12 +11,26 @@ import { useProducts } from '@/context/ProductContext';
 import { showSuccess } from '@/utils/toast';
 import { MadeWithDyad } from "@/components/made-with-dyad";
 import { Link } from 'react-router-dom';
+import { Search, SlidersHorizontal } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 
 const Index = () => {
   const { products } = useProducts();
   const [cartItems, setCartItems] = useState<Shoe[]>([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
+  
+  // Filter States
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
+  const [priceRange, setPriceRange] = useState([0, 1000]);
 
   const addToCart = (shoe: Shoe) => {
     setCartItems((prev) => [...prev, shoe]);
@@ -34,12 +48,17 @@ const Index = () => {
   };
 
   const filteredProducts = useMemo(() => {
-    return products.filter(product => 
-      product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      product.brand.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      product.category.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-  }, [products, searchTerm]);
+    return products.filter(product => {
+      const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                           product.brand.toLowerCase().includes(searchTerm.toLowerCase());
+      
+      const matchesCategory = selectedCategories.length === 0 || selectedCategories.includes(product.category);
+      const matchesBrand = selectedBrands.length === 0 || selectedBrands.includes(product.brand);
+      const matchesPrice = product.price >= priceRange[0] && product.price <= priceRange[1];
+
+      return matchesSearch && matchesCategory && matchesBrand && matchesPrice;
+    });
+  }, [products, searchTerm, selectedCategories, selectedBrands, priceRange]);
 
   return (
     <div className="min-h-screen bg-background font-sans selection:bg-primary selection:text-primary-foreground">
@@ -55,16 +74,48 @@ const Index = () => {
         
         <div className="container px-4 md:px-8 py-16">
           <div className="flex flex-col md:flex-row gap-12">
+            {/* Desktop Sidebar */}
             <aside className="hidden md:block w-64 shrink-0">
               <div className="sticky top-28">
-                <FilterSidebar />
+                <FilterSidebar 
+                  selectedCategories={selectedCategories}
+                  setSelectedCategories={setSelectedCategories}
+                  selectedBrands={selectedBrands}
+                  setSelectedBrands={setSelectedBrands}
+                  priceRange={priceRange}
+                  setPriceRange={setPriceRange}
+                />
               </div>
             </aside>
 
             <div className="flex-1">
               <div className="flex items-center justify-between mb-8">
-                <h2 className="text-3xl font-black tracking-tight">EXPLORE ALL</h2>
-                <p className="text-muted-foreground font-medium">{filteredProducts.length} Products Found</p>
+                <div>
+                  <h2 className="text-3xl font-black tracking-tight">EXPLORE ALL</h2>
+                  <p className="text-muted-foreground font-medium">{filteredProducts.length} Products Found</p>
+                </div>
+                
+                {/* Mobile Filter Trigger */}
+                <Sheet>
+                  <SheetTrigger asChild>
+                    <Button variant="outline" className="md:hidden rounded-xl gap-2">
+                      <SlidersHorizontal className="h-4 w-4" /> Filters
+                    </Button>
+                  </SheetTrigger>
+                  <SheetContent side="left" className="w-[300px] sm:w-[400px]">
+                    <SheetHeader className="mb-8">
+                      <SheetTitle className="text-2xl font-black">FILTERS</SheetTitle>
+                    </SheetHeader>
+                    <FilterSidebar 
+                      selectedCategories={selectedCategories}
+                      setSelectedCategories={setSelectedCategories}
+                      selectedBrands={selectedBrands}
+                      setSelectedBrands={setSelectedBrands}
+                      priceRange={priceRange}
+                      setPriceRange={setPriceRange}
+                    />
+                  </SheetContent>
+                </Sheet>
               </div>
               
               {filteredProducts.length > 0 ? (
@@ -83,7 +134,19 @@ const Index = () => {
                     <Search className="h-12 w-12 text-muted-foreground" />
                   </div>
                   <h3 className="text-xl font-bold">No products found</h3>
-                  <p className="text-muted-foreground">Try adjusting your search term.</p>
+                  <p className="text-muted-foreground">Try adjusting your filters or search term.</p>
+                  <Button 
+                    variant="link" 
+                    className="mt-2 font-bold"
+                    onClick={() => {
+                      setSelectedCategories([]);
+                      setSelectedBrands([]);
+                      setPriceRange([0, 1000]);
+                      setSearchTerm('');
+                    }}
+                  >
+                    Clear all filters
+                  </Button>
                 </div>
               )}
             </div>
@@ -141,5 +204,4 @@ const Index = () => {
   );
 };
 
-import { Search } from 'lucide-react';
 export default Index;
