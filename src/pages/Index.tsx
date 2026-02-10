@@ -101,7 +101,7 @@ const Index = () => {
           <div className="pt-8 border-t flex flex-col md:flex-row justify-between items-center gap-4">
             <p className="text-xs text-muted-foreground">© 2024 SoleSphere Inc. All rights reserved.</p>
             <div className="flex gap-6 text-xs text-muted-foreground">
-              <Link to="/admin" className="hover:text-primary font-bold">Admin Panel</Link>
+              <Link to="/adminpanel" className="hover:text-primary font-bold">Admin Panel</Link>
               <a href="#" className="hover:text-primary">Privacy Policy</a>
               <a href="#" className="hover:text-primary">Terms of Service</a>
             </div>
