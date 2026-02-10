@@ -17,9 +17,6 @@ import {
   MoreHorizontal, 
   Edit, 
   Trash2,
-  ExternalLink,
-  Upload,
-  Image as ImageIcon,
   X
 } from 'lucide-react';
 import { 
@@ -40,7 +37,6 @@ import {
 } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { showSuccess } from '@/utils/toast';
-import { ScrollArea } from '@/components/ui/scroll-area';
 
 const ProductManager = () => {
   const { products, addProduct, updateProduct, deleteProduct } = useProducts();
@@ -243,50 +239,55 @@ const ProductManager = () => {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filteredShoes.map((shoe) => (
-              <TableRow key={shoe.id} className="hover:bg-secondary/30 transition-colors">
-                <TableCell>
-                  <div className="flex items-center gap-3">
-                    <div className="h-12 w-12 rounded-xl bg-secondary overflow-hidden border shadow-sm">
-                      <img src={shoe.images[0]} alt={shoe.name} className="h-full w-full object-cover" />
+            {filteredShoes.map((shoe) => {
+              const hasImages = shoe.images && shoe.images.length > 0;
+              const displayImage = hasImages ? shoe.images[0] : '/placeholder.svg';
+              
+              return (
+                <TableRow key={shoe.id} className="hover:bg-secondary/30 transition-colors">
+                  <TableCell>
+                    <div className="flex items-center gap-3">
+                      <div className="h-12 w-12 rounded-xl bg-secondary overflow-hidden border shadow-sm">
+                        <img src={displayImage} alt={shoe.name} className="h-full w-full object-cover" />
+                      </div>
+                      <div>
+                        <p className="font-bold leading-none">{shoe.name}</p>
+                        <p className="text-xs text-muted-foreground mt-1">{shoe.brand}</p>
+                      </div>
                     </div>
-                    <div>
-                      <p className="font-bold leading-none">{shoe.name}</p>
-                      <p className="text-xs text-muted-foreground mt-1">{shoe.brand}</p>
-                    </div>
-                  </div>
-                </TableCell>
-                <TableCell>
-                  <span className="inline-flex items-center rounded-full bg-secondary px-2.5 py-0.5 text-xs font-semibold">
-                    {shoe.category}
-                  </span>
-                </TableCell>
-                <TableCell className="font-black">${shoe.price}</TableCell>
-                <TableCell>
-                  <span className="text-xs font-bold">{shoe.images.length} photos</span>
-                </TableCell>
-                <TableCell className="text-right">
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="icon" className="rounded-full">
-                        <MoreHorizontal className="h-5 w-5" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="rounded-xl">
-                      <DropdownMenuItem className="gap-2 cursor-pointer" onClick={() => openEditDialog(shoe)}>
-                        <Edit className="h-4 w-4" /> Edit
-                      </DropdownMenuItem>
-                      <DropdownMenuItem 
-                        className="gap-2 cursor-pointer text-destructive focus:text-destructive"
-                        onClick={() => deleteProduct(shoe.id)}
-                      >
-                        <Trash2 className="h-4 w-4" /> Delete
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </TableCell>
-              </TableRow>
-            ))}
+                  </TableCell>
+                  <TableCell>
+                    <span className="inline-flex items-center rounded-full bg-secondary px-2.5 py-0.5 text-xs font-semibold">
+                      {shoe.category}
+                    </span>
+                  </TableCell>
+                  <TableCell className="font-black">${shoe.price}</TableCell>
+                  <TableCell>
+                    <span className="text-xs font-bold">{(shoe.images || []).length} photos</span>
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="icon" className="rounded-full">
+                          <MoreHorizontal className="h-5 w-5" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" className="rounded-xl">
+                        <DropdownMenuItem className="gap-2 cursor-pointer" onClick={() => openEditDialog(shoe)}>
+                          <Edit className="h-4 w-4" /> Edit
+                        </DropdownMenuItem>
+                        <DropdownMenuItem 
+                          className="gap-2 cursor-pointer text-destructive focus:text-destructive"
+                          onClick={() => deleteProduct(shoe.id)}
+                        >
+                          <Trash2 className="h-4 w-4" /> Delete
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </TableCell>
+                </TableRow>
+              );
+            })}
           </TableBody>
         </Table>
       </div>
