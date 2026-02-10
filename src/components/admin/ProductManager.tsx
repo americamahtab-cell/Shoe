@@ -37,9 +37,11 @@ import {
 } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { showSuccess } from '@/utils/toast';
+import { useCurrency } from '@/context/CurrencyContext';
 
 const ProductManager = () => {
   const { products, addProduct, updateProduct, deleteProduct } = useProducts();
+  const { currency, formatPrice } = useCurrency();
   const [searchTerm, setSearchTerm] = useState('');
   const [editingShoe, setEditingShoe] = useState<Partial<Shoe> | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -193,7 +195,7 @@ const ProductManager = () => {
                       />
                     </div>
                     <div className="grid gap-2">
-                      <Label htmlFor="price">Price ($)</Label>
+                      <Label htmlFor="price">Price ({currency.symbol})</Label>
                       <Input 
                         id="price" 
                         name="price"
@@ -261,7 +263,7 @@ const ProductManager = () => {
                       {shoe.category}
                     </span>
                   </TableCell>
-                  <TableCell className="font-black">${shoe.price}</TableCell>
+                  <TableCell className="font-black">{formatPrice(shoe.price)}</TableCell>
                   <TableCell>
                     <span className="text-xs font-bold">{(shoe.images || []).length} photos</span>
                   </TableCell>
