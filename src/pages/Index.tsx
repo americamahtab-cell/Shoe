@@ -6,12 +6,14 @@ import Hero from '@/components/Hero';
 import ProductCard from '@/components/ProductCard';
 import FilterSidebar from '@/components/FilterSidebar';
 import CartDrawer from '@/components/CartDrawer';
-import { shoes, Shoe } from '@/data/shoes';
+import { Shoe } from '@/data/shoes';
+import { useProducts } from '@/context/ProductContext';
 import { showSuccess } from '@/utils/toast';
 import { MadeWithDyad } from "@/components/made-with-dyad";
 import { Link } from 'react-router-dom';
 
 const Index = () => {
+  const { products } = useProducts();
   const [cartItems, setCartItems] = useState<Shoe[]>([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
 
@@ -42,22 +44,20 @@ const Index = () => {
         
         <div className="container px-4 md:px-8 py-16">
           <div className="flex flex-col md:flex-row gap-12">
-            {/* Sidebar - Hidden on mobile, visible on md+ */}
             <aside className="hidden md:block w-64 shrink-0">
               <div className="sticky top-28">
                 <FilterSidebar />
               </div>
             </aside>
 
-            {/* Product Grid */}
             <div className="flex-1">
               <div className="flex items-center justify-between mb-8">
                 <h2 className="text-3xl font-black tracking-tight">EXPLORE ALL</h2>
-                <p className="text-muted-foreground font-medium">{shoes.length} Products Found</p>
+                <p className="text-muted-foreground font-medium">{products.length} Products Found</p>
               </div>
               
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-                {shoes.map((shoe) => (
+                {products.map((shoe) => (
                   <ProductCard 
                     key={shoe.id} 
                     shoe={shoe} 

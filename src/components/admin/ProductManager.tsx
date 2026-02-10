@@ -28,7 +28,8 @@ import {
   DropdownMenuItem, 
   DropdownMenuTrigger 
 } from '@/components/ui/dropdown-menu';
-import { shoes as initialShoes, Shoe } from '@/data/shoes';
+import { Shoe } from '@/data/shoes';
+import { useProducts } from '@/context/ProductContext';
 import { 
   Dialog, 
   DialogContent, 
@@ -41,22 +42,17 @@ import { Label } from '@/components/ui/label';
 import { showSuccess } from '@/utils/toast';
 
 const ProductManager = () => {
-  const [shoes, setShoes] = useState<Shoe[]>(initialShoes);
+  const { products, addProduct, updateProduct, deleteProduct } = useProducts();
   const [searchTerm, setSearchTerm] = useState('');
   const [editingShoe, setEditingShoe] = useState<Partial<Shoe> | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [previewImage, setPreviewImage] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const filteredShoes = shoes.filter(shoe => 
+  const filteredShoes = products.filter(shoe => 
     shoe.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     shoe.brand.toLowerCase().includes(searchTerm.toLowerCase())
   );
-
-  const handleDelete = (id: string) => {
-    setShoes(shoes.filter(s => s.id !== id));
-    showSuccess("Product deleted successfully");
-  };
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -65,7 +61,6 @@ const ProductManager = () => {
       reader.onloadend = () => {
         const base64String = reader.result as string;
         setPreviewImage(base64String);
-        setEditingShoe(prev => ({ ...prev, image: base64String }));
       };
       reader.readAsDataURL(file);
     }
@@ -80,7 +75,7 @@ const ProductManager = () => {
     const image = previewImage || (formData.get('image') as string);
 
     if (editingShoe?.id) {
-      setShoes(prev => prev.map(s => s.id === editingShoe.id ? { ...s, name, brand, price, image } as Shoe : s));
+      updateProduct({ ...editingShoe, name, brand, price, image } as Shoe);
       showSuccess("Product updated successfully");
     } else {
       const newShoe: Shoe = {
@@ -92,7 +87,7 @@ const ProductManager = () => {
         category: 'Lifestyle',
         color: 'Default'
       };
-      setShoes(prev => [newShoe, ...prev]);
+      addProduct(newShoe);
       showSuccess("New product added");
     }
 
@@ -137,7 +132,6 @@ const ProductManager = () => {
             </DialogHeader>
             <form onSubmit={handleSave} className="p-6 space-y-6">
               <div className="space-y-4">
-                {/* Image Upload Section */}
                 <div className="space-y-2">
                   <Label>Product Image</Label>
                   <div 
@@ -307,7 +301,7 @@ const ProductManager = () => {
                       </DropdownMenuItem>
                       <DropdownMenuItem 
                         className="gap-2 cursor-pointer text-destructive focus:text-destructive"
-                        onClick={() => handleDelete(shoe.id)}
+                        onClick={() => deleteProduct(shoe.id)}
                       >
                         <Trash2 className="h-4 w-4" /> Delete
                       </DropdownMenuItem>
