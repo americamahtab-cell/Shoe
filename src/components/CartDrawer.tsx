@@ -50,7 +50,7 @@ const CartDrawer = ({ isOpen, onClose, items, onRemove }: CartDrawerProps) => {
                 {items.map((item, index) => (
                   <div key={`${item.id}-${index}`} className="flex gap-4">
                     <div className="h-24 w-24 shrink-0 overflow-hidden rounded-2xl bg-secondary">
-                      <img src={item.image} alt={item.name} className="h-full w-full object-cover" />
+                      <img src={item.images[0]} alt={item.name} className="h-full w-full object-cover" />
                     </div>
                     <div className="flex flex-1 flex-col justify-between py-1">
                       <div>

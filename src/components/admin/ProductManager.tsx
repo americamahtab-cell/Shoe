@@ -40,13 +40,14 @@ import {
 } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { showSuccess } from '@/utils/toast';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 const ProductManager = () => {
   const { products, addProduct, updateProduct, deleteProduct } = useProducts();
   const [searchTerm, setSearchTerm] = useState('');
   const [editingShoe, setEditingShoe] = useState<Partial<Shoe> | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [previewImage, setPreviewImage] = useState<string | null>(null);
+  const [previewImages, setPreviewImages] = useState<string[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const filteredShoes = products.filter(shoe => 
@@ -55,15 +56,19 @@ const ProductManager = () => {
   );
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
+    const files = Array.from(e.target.files || []);
+    files.forEach(file => {
       const reader = new FileReader();
       reader.onloadend = () => {
         const base64String = reader.result as string;
-        setPreviewImage(base64String);
+        setPreviewImages(prev => [...prev, base64String]);
       };
       reader.readAsDataURL(file);
-    }
+    });
+  };
+
+  const removePreviewImage = (index: number) => {
+    setPreviewImages(prev => prev.filter((_, i) => i !== index));
   };
 
   const handleSave = (e: React.FormEvent) => {
@@ -72,10 +77,9 @@ const ProductManager = () => {
     const name = formData.get('name') as string;
     const brand = formData.get('brand') as string;
     const price = Number(formData.get('price'));
-    const image = previewImage || (formData.get('image') as string);
 
     if (editingShoe?.id) {
-      updateProduct({ ...editingShoe, name, brand, price, image } as Shoe);
+      updateProduct({ ...editingShoe, name, brand, price, images: previewImages } as Shoe);
       showSuccess("Product updated successfully");
     } else {
       const newShoe: Shoe = {
@@ -83,7 +87,7 @@ const ProductManager = () => {
         name,
         brand,
         price,
-        image,
+        images: previewImages,
         category: 'Lifestyle',
         color: 'Default'
       };
@@ -93,18 +97,18 @@ const ProductManager = () => {
 
     setIsDialogOpen(false);
     setEditingShoe(null);
-    setPreviewImage(null);
+    setPreviewImages([]);
   };
 
   const openEditDialog = (shoe: Shoe) => {
     setEditingShoe(shoe);
-    setPreviewImage(shoe.image);
+    setPreviewImages(shoe.images || []);
     setIsDialogOpen(true);
   };
 
   const resetDialog = () => {
     setEditingShoe(null);
-    setPreviewImage(null);
+    setPreviewImages([]);
   };
 
   return (
@@ -124,7 +128,7 @@ const ProductManager = () => {
               <Plus className="mr-2 h-5 w-5" /> Add New Product
             </Button>
           </DialogTrigger>
-          <DialogContent className="sm:max-w-[500px] rounded-3xl overflow-hidden p-0 border-none">
+          <DialogContent className="sm:max-w-[600px] rounded-3xl overflow-hidden p-0 border-none">
             <DialogHeader className="p-6 pb-0">
               <DialogTitle className="text-2xl font-black">
                 {editingShoe?.id ? 'EDIT PRODUCT' : 'ADD PRODUCT'}
@@ -133,47 +137,37 @@ const ProductManager = () => {
             <form onSubmit={handleSave} className="p-6 space-y-6">
               <div className="space-y-4">
                 <div className="space-y-2">
-                  <Label>Product Image</Label>
-                  <div 
-                    className="relative group aspect-video rounded-2xl border-2 border-dashed border-muted-foreground/25 bg-secondary/30 flex flex-col items-center justify-center overflow-hidden transition-all hover:border-primary/50 cursor-pointer"
-                    onClick={() => fileInputRef.current?.click()}
-                  >
-                    {previewImage ? (
-                      <>
-                        <img src={previewImage} alt="Preview" className="w-full h-full object-cover" />
-                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                          <p className="text-white font-bold text-sm flex items-center gap-2">
-                            <Upload className="h-4 w-4" /> Change Image
-                          </p>
-                        </div>
+                  <Label>Product Images</Label>
+                  <div className="grid grid-cols-3 gap-4 mb-4">
+                    {previewImages.map((img, index) => (
+                      <div key={index} className="relative aspect-square rounded-xl overflow-hidden border bg-secondary/30 group">
+                        <img src={img} alt={`Preview ${index}`} className="w-full h-full object-cover" />
                         <Button 
                           type="button"
                           variant="destructive" 
                           size="icon" 
-                          className="absolute top-2 right-2 h-8 w-8 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setPreviewImage(null);
-                          }}
+                          className="absolute top-1 right-1 h-6 w-6 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                          onClick={() => removePreviewImage(index)}
                         >
-                          <X className="h-4 w-4" />
+                          <X className="h-3 w-3" />
                         </Button>
-                      </>
-                    ) : (
-                      <div className="text-center p-6">
-                        <div className="mx-auto w-12 h-12 rounded-full bg-background flex items-center justify-center mb-3 shadow-sm">
-                          <ImageIcon className="h-6 w-6 text-muted-foreground" />
-                        </div>
-                        <p className="text-sm font-bold">Click to upload image</p>
-                        <p className="text-xs text-muted-foreground mt-1">PNG, JPG or WebP (Max 2MB)</p>
                       </div>
-                    )}
+                    ))}
+                    <button 
+                      type="button"
+                      className="aspect-square rounded-xl border-2 border-dashed border-muted-foreground/25 bg-secondary/30 flex flex-col items-center justify-center hover:border-primary/50 transition-all"
+                      onClick={() => fileInputRef.current?.click()}
+                    >
+                      <Plus className="h-6 w-6 text-muted-foreground" />
+                      <span className="text-[10px] font-bold mt-1">Add Image</span>
+                    </button>
                   </div>
                   <input 
                     type="file" 
                     ref={fileInputRef} 
                     className="hidden" 
                     accept="image/*" 
+                    multiple
                     onChange={handleImageUpload}
                   />
                 </div>
@@ -215,17 +209,6 @@ const ProductManager = () => {
                       />
                     </div>
                   </div>
-                  <div className="grid gap-2">
-                    <Label htmlFor="image">Or Image URL</Label>
-                    <Input 
-                      id="image" 
-                      name="image"
-                      value={previewImage?.startsWith('data:') ? '' : previewImage || ''} 
-                      onChange={(e) => setPreviewImage(e.target.value)}
-                      placeholder="https://images.unsplash.com/..." 
-                      className="rounded-xl h-11" 
-                    />
-                  </div>
                 </div>
               </div>
               <DialogFooter>
@@ -255,7 +238,7 @@ const ProductManager = () => {
               <TableHead className="font-bold">Product</TableHead>
               <TableHead className="font-bold">Category</TableHead>
               <TableHead className="font-bold">Price</TableHead>
-              <TableHead className="font-bold">Stock</TableHead>
+              <TableHead className="font-bold">Images</TableHead>
               <TableHead className="text-right font-bold">Actions</TableHead>
             </TableRow>
           </TableHeader>
@@ -265,7 +248,7 @@ const ProductManager = () => {
                 <TableCell>
                   <div className="flex items-center gap-3">
                     <div className="h-12 w-12 rounded-xl bg-secondary overflow-hidden border shadow-sm">
-                      <img src={shoe.image} alt={shoe.name} className="h-full w-full object-cover" />
+                      <img src={shoe.images[0]} alt={shoe.name} className="h-full w-full object-cover" />
                     </div>
                     <div>
                       <p className="font-bold leading-none">{shoe.name}</p>
@@ -280,10 +263,7 @@ const ProductManager = () => {
                 </TableCell>
                 <TableCell className="font-black">${shoe.price}</TableCell>
                 <TableCell>
-                  <div className="flex items-center gap-2">
-                    <div className="h-2 w-2 rounded-full bg-emerald-500" />
-                    <span className="text-sm font-medium">In Stock</span>
-                  </div>
+                  <span className="text-xs font-bold">{shoe.images.length} photos</span>
                 </TableCell>
                 <TableCell className="text-right">
                   <DropdownMenu>
@@ -295,9 +275,6 @@ const ProductManager = () => {
                     <DropdownMenuContent align="end" className="rounded-xl">
                       <DropdownMenuItem className="gap-2 cursor-pointer" onClick={() => openEditDialog(shoe)}>
                         <Edit className="h-4 w-4" /> Edit
-                      </DropdownMenuItem>
-                      <DropdownMenuItem className="gap-2 cursor-pointer">
-                        <ExternalLink className="h-4 w-4" /> View Store
                       </DropdownMenuItem>
                       <DropdownMenuItem 
                         className="gap-2 cursor-pointer text-destructive focus:text-destructive"
