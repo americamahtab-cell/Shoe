@@ -1,80 +1,18 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import AdminSidebar from '@/components/admin/AdminSidebar';
 import AdminOverview from '@/components/admin/AdminOverview';
 import ProductManager from '@/components/admin/ProductManager';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Lock, ShieldCheck, ShoppingBag, Users } from 'lucide-react';
-import { showError, showSuccess } from '@/utils/toast';
+import { ShoppingBag, Users } from 'lucide-react';
 
 const Admin = () => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [password, setPassword] = useState('');
   const [activeTab, setActiveTab] = useState('overview');
 
-  // Simple mock auth check
-  const handleLogin = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (password === 'admin123') {
-      setIsAuthenticated(true);
-      showSuccess("Welcome to the Admin Panel");
-      localStorage.setItem('isAdmin', 'true');
-    } else {
-      showError("Invalid admin password");
-    }
-  };
-
   const handleLogout = () => {
-    setIsAuthenticated(false);
-    localStorage.removeItem('isAdmin');
+    // Redirect to home since there's no password anymore
+    window.location.href = '/';
   };
-
-  useEffect(() => {
-    const isAdmin = localStorage.getItem('isAdmin');
-    if (isAdmin === 'true') setIsAuthenticated(true);
-  }, []);
-
-  if (!isAuthenticated) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-secondary/30 p-4">
-        <div className="w-full max-w-md bg-card rounded-[2.5rem] shadow-2xl p-10 border">
-          <div className="flex flex-col items-center text-center mb-8">
-            <div className="h-16 w-16 bg-primary rounded-3xl flex items-center justify-center mb-6 shadow-xl shadow-primary/20">
-              <ShieldCheck className="h-8 w-8 text-primary-foreground" />
-            </div>
-            <h1 className="text-3xl font-black tracking-tight mb-2">ADMIN ACCESS</h1>
-            <p className="text-muted-foreground">Please enter your credentials to continue.</p>
-          </div>
-
-          <form onSubmit={handleLogin} className="space-y-6">
-            <div className="space-y-2">
-              <div className="relative">
-                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-                <Input 
-                  type="password" 
-                  placeholder="Admin Password" 
-                  className="pl-12 h-14 rounded-2xl bg-secondary/50 border-none focus-visible:ring-2"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                />
-              </div>
-            </div>
-            <Button type="submit" className="w-full h-14 rounded-2xl font-black text-lg shadow-lg shadow-primary/20">
-              AUTHENTICATE
-            </Button>
-          </form>
-          
-          <div className="mt-8 text-center">
-            <a href="/" className="text-sm font-bold text-muted-foreground hover:text-primary transition-colors">
-              Return to Storefront
-            </a>
-          </div>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="flex min-h-screen bg-secondary/10">
