@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { 
   Table, 
   TableBody, 
@@ -36,6 +36,13 @@ const mockOrders = [
 
 const OrderManager = () => {
   const [searchTerm, setSearchTerm] = useState('');
+
+  const filteredOrders = useMemo(() => {
+    return mockOrders.filter(order => 
+      order.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      order.customer.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }, [searchTerm]);
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -86,7 +93,7 @@ const OrderManager = () => {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {mockOrders.map((order) => (
+            {filteredOrders.map((order) => (
               <TableRow key={order.id} className="hover:bg-secondary/30 transition-colors">
                 <TableCell className="font-bold">{order.id}</TableCell>
                 <TableCell>{order.customer}</TableCell>

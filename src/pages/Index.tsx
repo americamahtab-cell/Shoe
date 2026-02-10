@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import Navbar from '@/components/Navbar';
 import Hero from '@/components/Hero';
 import ProductCard from '@/components/ProductCard';
@@ -16,6 +16,7 @@ const Index = () => {
   const { products } = useProducts();
   const [cartItems, setCartItems] = useState<Shoe[]>([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
 
   const addToCart = (shoe: Shoe) => {
     setCartItems((prev) => [...prev, shoe]);
@@ -32,11 +33,21 @@ const Index = () => {
     });
   };
 
+  const filteredProducts = useMemo(() => {
+    return products.filter(product => 
+      product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      product.brand.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      product.category.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }, [products, searchTerm]);
+
   return (
     <div className="min-h-screen bg-background font-sans selection:bg-primary selection:text-primary-foreground">
       <Navbar 
         cartCount={cartItems.length} 
         onCartClick={() => setIsCartOpen(true)} 
+        searchTerm={searchTerm}
+        onSearchChange={setSearchTerm}
       />
       
       <main>
@@ -53,18 +64,28 @@ const Index = () => {
             <div className="flex-1">
               <div className="flex items-center justify-between mb-8">
                 <h2 className="text-3xl font-black tracking-tight">EXPLORE ALL</h2>
-                <p className="text-muted-foreground font-medium">{products.length} Products Found</p>
+                <p className="text-muted-foreground font-medium">{filteredProducts.length} Products Found</p>
               </div>
               
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-                {products.map((shoe) => (
-                  <ProductCard 
-                    key={shoe.id} 
-                    shoe={shoe} 
-                    onAddToCart={addToCart} 
-                  />
-                ))}
-              </div>
+              {filteredProducts.length > 0 ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                  {filteredProducts.map((shoe) => (
+                    <ProductCard 
+                      key={shoe.id} 
+                      shoe={shoe} 
+                      onAddToCart={addToCart} 
+                    />
+                  ))}
+                </div>
+              ) : (
+                <div className="flex flex-col items-center justify-center py-20 text-center">
+                  <div className="rounded-full bg-secondary p-6 mb-4">
+                    <Search className="h-12 w-12 text-muted-foreground" />
+                  </div>
+                  <h3 className="text-xl font-bold">No products found</h3>
+                  <p className="text-muted-foreground">Try adjusting your search term.</p>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -120,4 +141,5 @@ const Index = () => {
   );
 };
 
+import { Search } from 'lucide-react';
 export default Index;

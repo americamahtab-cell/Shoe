@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { 
   Table, 
   TableBody, 
@@ -37,6 +37,13 @@ const mockCustomers = [
 const CustomerManager = () => {
   const [searchTerm, setSearchTerm] = useState('');
 
+  const filteredCustomers = useMemo(() => {
+    return mockCustomers.filter(customer => 
+      customer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      customer.email.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }, [searchTerm]);
+
   return (
     <div className="space-y-8">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -71,7 +78,7 @@ const CustomerManager = () => {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {mockCustomers.map((customer) => (
+            {filteredCustomers.map((customer) => (
               <TableRow key={customer.id} className="hover:bg-secondary/30 transition-colors">
                 <TableCell>
                   <div className="flex items-center gap-3">

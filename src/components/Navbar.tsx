@@ -8,9 +8,11 @@ import { Input } from '@/components/ui/input';
 interface NavbarProps {
   cartCount: number;
   onCartClick: () => void;
+  searchTerm: string;
+  onSearchChange: (value: string) => void;
 }
 
-const Navbar = ({ cartCount, onCartClick }: NavbarProps) => {
+const Navbar = ({ cartCount, onCartClick, searchTerm, onSearchChange }: NavbarProps) => {
   return (
     <nav className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-20 items-center justify-between px-4 md:px-8">
@@ -32,6 +34,8 @@ const Navbar = ({ cartCount, onCartClick }: NavbarProps) => {
             <Input 
               placeholder="Search sneakers..." 
               className="pl-10 bg-secondary/50 border-none rounded-full focus-visible:ring-1"
+              value={searchTerm}
+              onChange={(e) => onSearchChange(e.target.value)}
             />
           </div>
           
