@@ -1,33 +1,34 @@
 "use client";
 
 import React, { useState, useMemo } from 'react';
-import Navbar from '@/components/Navbar';
-import Hero from '@/components/Hero';
-import ProductCard from '@/components/ProductCard';
-import FilterSidebar from '@/components/FilterSidebar';
-import CartDrawer from '@/components/CartDrawer';
-import { Shoe } from '@/data/shoes';
-import { useProducts } from '@/context/ProductContext';
-import { showSuccess } from '@/utils/toast';
-import { MadeWithDyad } from "@/components/made-with-dyad";
+import Navbar from '../components/Navbar';
+import Hero from '../components/Hero';
+import ProductCard from '../components/ProductCard';
+import FilterSidebar from '../components/FilterSidebar';
+import CartDrawer from '../components/CartDrawer';
+import { Shoe } from '../data/shoes';
+import { useProducts } from '../context/ProductContext';
+import { showSuccess } from '../utils/toast';
+import { MadeWithDyad } from "../components/made-with-dyad";
 import { Link } from 'react-router-dom';
 import { Search, SlidersHorizontal } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { Button } from '../components/ui/button';
+import { useStore } from '../context/StoreContext';
 import {
   Sheet,
   SheetContent,
   SheetHeader,
   SheetTitle,
   SheetTrigger,
-} from "@/components/ui/sheet";
+} from "../components/ui/sheet";
 
 const Index = () => {
   const { products } = useProducts();
+  const { storeName, storeDescription } = useStore();
   const [cartItems, setCartItems] = useState<Shoe[]>([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   
-  // Filter States
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
   const [priceRange, setPriceRange] = useState([0, 1000]);
@@ -74,7 +75,6 @@ const Index = () => {
         
         <div className="container px-4 md:px-8 py-16">
           <div className="flex flex-col md:flex-row gap-12">
-            {/* Desktop Sidebar */}
             <aside className="hidden md:block w-64 shrink-0">
               <div className="sticky top-28">
                 <FilterSidebar 
@@ -91,11 +91,10 @@ const Index = () => {
             <div className="flex-1">
               <div className="flex items-center justify-between mb-8">
                 <div>
-                  <h2 className="text-3xl font-black tracking-tight">EXPLORE ALL</h2>
+                  <h2 className="text-3xl font-black tracking-tight uppercase">EXPLORE ALL</h2>
                   <p className="text-muted-foreground font-medium">{filteredProducts.length} Products Found</p>
                 </div>
                 
-                {/* Mobile Filter Trigger */}
                 <Sheet>
                   <SheetTrigger asChild>
                     <Button variant="outline" className="md:hidden rounded-xl gap-2">
@@ -158,9 +157,9 @@ const Index = () => {
         <div className="container px-4 md:px-8">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
             <div className="col-span-1 md:col-span-2">
-              <span className="text-2xl font-black tracking-tighter text-primary mb-6 block">SOLESPHERE</span>
+              <span className="text-2xl font-black tracking-tighter text-primary mb-6 block uppercase">{storeName}</span>
               <p className="text-muted-foreground max-w-sm mb-6">
-                The ultimate destination for sneakerheads. We bring you the most exclusive drops and timeless classics.
+                {storeDescription}
               </p>
             </div>
             <div>
@@ -183,7 +182,7 @@ const Index = () => {
             </div>
           </div>
           <div className="pt-8 border-t flex flex-col md:flex-row justify-between items-center gap-4">
-            <p className="text-xs text-muted-foreground">© 2024 SoleSphere Inc. All rights reserved.</p>
+            <p className="text-xs text-muted-foreground">© 2024 {storeName} Inc. All rights reserved.</p>
             <div className="flex gap-6 text-xs text-muted-foreground">
               <Link to="/adminpanel" className="hover:text-primary font-bold">Admin Panel</Link>
               <a href="#" className="hover:text-primary">Privacy Policy</a>

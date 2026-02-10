@@ -8,10 +8,12 @@ import {
   Users, 
   Settings, 
   LogOut,
-  ChevronRight
+  ChevronRight,
+  Type
 } from 'lucide-react';
-import { cn } from '@/lib/utils';
-import { Button } from '@/components/ui/button';
+import { cn } from '../../lib/utils';
+import { Button } from '../ui/button';
+import { useStore } from '../../context/StoreContext';
 
 interface AdminSidebarProps {
   activeTab: string;
@@ -20,18 +22,21 @@ interface AdminSidebarProps {
 }
 
 const AdminSidebar = ({ activeTab, setActiveTab, onLogout }: AdminSidebarProps) => {
+  const { storeName } = useStore();
+  
   const menuItems = [
     { id: 'overview', label: 'Overview', icon: LayoutDashboard },
     { id: 'products', label: 'Products', icon: Package },
     { id: 'orders', label: 'Orders', icon: ShoppingBag },
     { id: 'customers', label: 'Customers', icon: Users },
+    { id: 'typography', label: 'Typography', icon: Type },
     { id: 'settings', label: 'Settings', icon: Settings },
   ];
 
   return (
     <div className="flex h-full w-64 flex-col border-r bg-card p-6">
       <div className="mb-10">
-        <span className="text-xl font-black tracking-tighter text-primary">SOLESPHERE</span>
+        <span className="text-xl font-black tracking-tighter text-primary uppercase">{storeName}</span>
         <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Admin Panel</p>
       </div>
 
