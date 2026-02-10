@@ -1,50 +1,131 @@
 "use client";
 
-import React from 'react';
-import { ShoppingCart, Heart } from 'lucide-react';
+import React, { useState } from 'react';
+import { Shoe } from '@/data/shoes';
+import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Plus, ZoomIn, ChevronLeft, ChevronRight, Eye } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import {
+  Dialog,
+  DialogContent,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { useCurrency } from '@/context/CurrencyContext';
 
 interface ProductCardProps {
-  product: {
-    id: string;
-    name: string;
-    price: number;
-    image: string;
-    category: string;
-  };
+  shoe: Shoe;
+  onAddToCart: (shoe: Shoe) => void;
 }
 
-const ProductCard = ({ product }: ProductCardProps) => {
+const ProductCard = ({ shoe, onAddToCart }: ProductCardProps) => {
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const { formatPrice } = useCurrency();
 
+  const images = shoe.images || [];
+  const hasImages = images.length > 0;
+  const currentImage = hasImages ? images[currentImageIndex] : '/placeholder.svg';
+
+  const nextImage = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (images.length > 0) {
+      setCurrentImageIndex((prev) => (prev + 1) % images.length);
+    }
+  };
+
+  const prevImage = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (images.length > 0) {
+      setCurrentImageIndex((prev) => (prev - 1 + images.length) % images.length);
+    }
+  };
+
   return (
-    <div className="group relative bg-card rounded-[2rem] overflow-hidden border border-border/50 hover:shadow-2xl hover:shadow-primary/10 transition-all duration-500 hover:-translate-y-2">
-      <div className="aspect-[4/5] overflow-hidden bg-secondary/30 relative">
-        <img 
-          src={product.image} 
-          alt={product.name}
-          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-        />
-        <div className="absolute top-4 right-4 flex flex-col gap-2 translate-x-12 opacity-0 group-hover:translate-x-0 group-hover:opacity-100 transition-all duration-300">
-          <Button size="icon" variant="secondary" className="rounded-full shadow-lg">
-            <Heart className="h-5 w-5" />
-          </Button>
+    <Card className="group overflow-hidden border-none bg-secondary/20 transition-all hover:shadow-xl rounded-3xl">
+      <CardContent className="p-0">
+        <div className="relative aspect-square overflow-hidden bg-secondary/40">
+          {/* Image with Preview Trigger */}
+          <Dialog open={isPreviewOpen} onOpenChange={setIsPreviewOpen}>
+            <DialogTrigger asChild>
+              <div className="relative h-full w-full cursor-zoom-in overflow-hidden">
+                <img 
+                  src={currentImage} 
+                  alt={shoe.name} 
+                  className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
+                />
+                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center">
+                  <ZoomIn className="text-white opacity-0 group-hover:opacity-100 transition-opacity h-8 w-8" />
+                </div>
+              </div>
+            </DialogTrigger>
+            <DialogContent className="max-w-3xl p-0 overflow-hidden border-none bg-transparent shadow-none sm:rounded-3xl">
+              <div className="relative aspect-square w-full bg-secondary/20 backdrop-blur-sm flex items-center justify-center">
+                <img 
+                  src={currentImage} 
+                  alt={shoe.name} 
+                  className="max-h-[90vh] w-full object-contain rounded-2xl"
+                />
+              </div>
+            </DialogContent>
+          </Dialog>
+
+          {/* Navigation Arrows */}
+          {images.length > 1 && (
+            <>
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                className="absolute left-2 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full bg-background/50 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity"
+                onClick={prevImage}
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </Button>
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                className="absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full bg-background/50 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity"
+                onClick={nextImage}
+              >
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+            </>
+          )}
+
+          <div className="absolute top-4 left-4 pointer-events-none">
+            <span className="rounded-full bg-background/80 backdrop-blur-sm px-3 py-1 text-[10px] font-bold uppercase tracking-wider">
+              {shoe.brand}
+            </span>
+          </div>
+
+          <Link 
+            to={`/product/${shoe.id}`}
+            className="absolute top-4 right-4 h-10 w-10 rounded-full bg-background/80 backdrop-blur-sm flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all hover:bg-primary hover:text-white"
+          >
+            <Eye className="h-5 w-5" />
+          </Link>
         </div>
-        <div className="absolute bottom-0 left-0 right-0 p-6 translate-y-full group-hover:translate-y-0 transition-transform duration-500">
-          <Button className="w-full rounded-2xl h-12 font-bold shadow-xl gap-2">
-            <ShoppingCart className="h-5 w-5" /> Add to Cart
-          </Button>
+        <div className="p-6">
+          <Link to={`/product/${shoe.id}`} className="hover:underline">
+            <div className="flex justify-between items-start mb-2">
+              <div>
+                <h3 className="font-bold text-lg leading-tight">{shoe.name}</h3>
+                <p className="text-sm text-muted-foreground">{shoe.category}</p>
+              </div>
+              <p className="font-black text-lg">{formatPrice(shoe.price)}</p>
+            </div>
+          </Link>
         </div>
-      </div>
-      <div className="p-6 space-y-2">
-        <p className="text-xs font-bold text-primary uppercase tracking-widest">{product.category}</p>
-        <h3 className="text-xl font-bold truncate">{product.name}</h3>
-        <p className="text-2xl font-black text-foreground">
-          {formatPrice(product.price)}
-        </p>
-      </div>
-    </div>
+      </CardContent>
+      <CardFooter className="p-6 pt-0">
+        <Button 
+          className="w-full rounded-2xl h-12 font-bold transition-all group-hover:bg-primary"
+          onClick={() => onAddToCart(shoe)}
+        >
+          <Plus className="mr-2 h-4 w-4" /> Add to Cart
+        </Button>
+      </CardFooter>
+    </Card>
   );
 };
 
