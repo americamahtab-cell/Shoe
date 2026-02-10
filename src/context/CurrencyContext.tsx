@@ -5,14 +5,13 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 export type Currency = {
   code: string;
   symbol: string;
-  rate: number; // Rate relative to USD
 };
 
 export const currencies: Record<string, Currency> = {
-  USD: { code: 'USD', symbol: '$', rate: 1 },
-  BDT: { code: 'BDT', symbol: '৳', rate: 110 },
-  EUR: { code: 'EUR', symbol: '€', rate: 0.92 },
-  GBP: { code: 'GBP', symbol: '£', rate: 0.79 },
+  USD: { code: 'USD', symbol: '$' },
+  BDT: { code: 'BDT', symbol: '৳' },
+  EUR: { code: 'EUR', symbol: '€' },
+  GBP: { code: 'GBP', symbol: '£' },
 };
 
 interface CurrencyContextType {
@@ -41,8 +40,8 @@ export const CurrencyProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   };
 
   const formatPrice = (price: number) => {
-    const convertedPrice = (price * currency.rate).toFixed(2);
-    return `${currency.symbol}${convertedPrice}`;
+    // Now it just shows the symbol + the exact price you entered
+    return `${currency.symbol}${price.toLocaleString()}`;
   };
 
   return (
