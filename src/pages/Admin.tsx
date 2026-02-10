@@ -7,6 +7,7 @@ import ProductManager from '@/components/admin/ProductManager';
 import OrderManager from '@/components/admin/OrderManager';
 import CustomerManager from '@/components/admin/CustomerManager';
 import SettingsManager from '@/components/admin/SettingsManager';
+import TypographyManager from '@/components/admin/TypographyManager';
 
 const Admin = () => {
   const [activeTab, setActiveTab] = useState('overview');
@@ -29,6 +30,7 @@ const Admin = () => {
           {activeTab === 'products' && <ProductManager />}
           {activeTab === 'orders' && <OrderManager />}
           {activeTab === 'customers' && <CustomerManager />}
+          {activeTab === 'typography' && <TypographyManager />}
           {activeTab === 'settings' && <SettingsManager />}
         </div>
       </main>
