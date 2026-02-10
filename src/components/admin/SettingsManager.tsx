@@ -1,6 +1,6 @@
 "use client";
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -17,19 +17,36 @@ import {
 import { 
   Store, 
   Bell, 
-  Shield, 
   Globe,
   Save,
   Coins
 } from 'lucide-react';
 import { showSuccess } from '@/utils/toast';
 import { useCurrency, currencies } from '@/context/CurrencyContext';
+import { useStore } from '@/context/StoreContext';
 
 const SettingsManager = () => {
   const { currency, setCurrencyByCode } = useCurrency();
+  const { storeName, storeEmail, storeDescription, setStoreInfo } = useStore();
+  
+  const [name, setName] = useState(storeName);
+  const [email, setEmail] = useState(storeEmail);
+  const [description, setDescription] = useState(storeDescription);
+
+  // Update local state if context changes (e.g. on initial load)
+  useEffect(() => {
+    setName(storeName);
+    setEmail(storeEmail);
+    setDescription(storeDescription);
+  }, [storeName, storeEmail, storeDescription]);
 
   const handleSave = () => {
-    showSuccess("Settings updated successfully");
+    setStoreInfo({
+      name: name,
+      email: email,
+      description: description
+    });
+    showSuccess("Store settings updated successfully");
   };
 
   return (
@@ -97,16 +114,31 @@ const SettingsManager = () => {
             <div className="grid gap-4 md:grid-cols-2">
               <div className="space-y-2">
                 <Label htmlFor="store-name">Store Name</Label>
-                <Input id="store-name" defaultValue="SOLESPHERE" className="rounded-xl" />
+                <Input 
+                  id="store-name" 
+                  value={name} 
+                  onChange={(e) => setName(e.target.value)}
+                  className="rounded-xl" 
+                />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="store-email">Support Email</Label>
-                <Input id="store-email" defaultValue="support@solesphere.com" className="rounded-xl" />
+                <Input 
+                  id="store-email" 
+                  value={email} 
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="rounded-xl" 
+                />
               </div>
             </div>
             <div className="space-y-2">
               <Label htmlFor="store-desc">Store Description</Label>
-              <Input id="store-desc" defaultValue="The ultimate destination for sneakerheads." className="rounded-xl" />
+              <Input 
+                id="store-desc" 
+                value={description} 
+                onChange={(e) => setDescription(e.target.value)}
+                className="rounded-xl" 
+              />
             </div>
           </CardContent>
         </Card>
