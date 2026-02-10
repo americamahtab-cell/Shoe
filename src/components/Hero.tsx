@@ -3,24 +3,26 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { ArrowRight } from 'lucide-react';
-
-const HERO_IMAGES = [
-  "https://images.unsplash.com/photo-1542291026-7eec264c27ff?q=80&w=1200&auto=format&fit=crop",
-  "https://images.unsplash.com/photo-1552346154-21d32810aba3?q=80&w=1200&auto=format&fit=crop",
-  "https://images.unsplash.com/photo-1606107557195-0e29a4b5b4aa?q=80&w=1200&auto=format&fit=crop",
-  "https://images.unsplash.com/photo-1491553895911-0055eca6402d?q=80&w=1200&auto=format&fit=crop"
-];
+import { useProducts } from '@/context/ProductContext';
 
 const Hero = () => {
+  const { products } = useProducts();
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
+  // Extract the first image from each product to use in the hero slideshow
+  const heroImages = products.length > 0 
+    ? products.map(p => p.images[0]).filter(Boolean) 
+    : ["https://images.unsplash.com/photo-1542291026-7eec264c27ff?q=80&w=1200&auto=format&fit=crop"];
+
   useEffect(() => {
+    if (heroImages.length <= 1) return;
+
     const interval = setInterval(() => {
-      setCurrentImageIndex((prev) => (prev + 1) % HERO_IMAGES.length);
-    }, 3000); // Change image every 3 seconds
+      setCurrentImageIndex((prev) => (prev + 1) % heroImages.length);
+    }, 3000);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [heroImages.length]);
 
   return (
     <div className="relative overflow-hidden bg-secondary/30 py-16 md:py-24">
@@ -48,12 +50,12 @@ const Hero = () => {
           <div className="relative h-[400px] flex items-center justify-center">
             <div className="absolute -z-10 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] bg-primary/10 rounded-full blur-3xl" />
             
-            {HERO_IMAGES.map((img, index) => (
+            {heroImages.map((img, index) => (
               <img 
-                key={img}
+                key={`${img}-${index}`}
                 src={img} 
-                alt={`Featured Sneaker ${index + 1}`} 
-                className={`absolute w-full h-auto object-contain drop-shadow-2xl transition-all duration-1000 ease-in-out ${
+                alt={`Featured Product ${index + 1}`} 
+                className={`absolute w-full h-auto max-h-full object-contain drop-shadow-2xl transition-all duration-1000 ease-in-out ${
                   index === currentImageIndex 
                     ? "opacity-100 scale-100 rotate-[-15deg]" 
                     : "opacity-0 scale-90 rotate-0 pointer-events-none"
