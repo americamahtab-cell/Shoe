@@ -16,8 +16,8 @@ const Hero = () => {
             <h1 className="text-5xl md:text-7xl font-black tracking-tight leading-[1.1]">
               STEP INTO THE <span className="text-primary">FUTURE</span>
             </h1>
-            <p className="text-lg text-muted-foreground max-w-[500px]">
-              Discover the latest collection of high-performance sneakers designed for comfort, style, and speed.
+            <p className="text-lg text-muted-foreground max-w-[500px] font-thin italic">
+              Whereas recognition of the inherent dignity
             </p>
             <div className="flex flex-wrap gap-4">
               <Button size="lg" className="rounded-full px-8 h-14 text-base font-bold">
