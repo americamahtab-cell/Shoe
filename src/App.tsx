@@ -1,42 +1,30 @@
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { ProductProvider } from "@/context/ProductContext";
-import { CurrencyProvider } from "@/context/CurrencyContext";
-import { StoreProvider } from "./context/StoreContext";
-import { FontProvider } from "./context/FontContext";
-import Index from "./pages/Index";
-import Admin from "./pages/Admin";
-import ProductDetails from "./pages/ProductDetails";
-import NotFound from "./pages/NotFound";
+"use client";
 
-const queryClient = new QueryClient();
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import Index from './pages/Index';
+import Admin from './pages/Admin';
+import { CurrencyProvider } from './context/CurrencyContext';
+import { StoreProvider } from './context/StoreContext';
+import { ProductProvider } from './context/ProductContext';
+import ToastProvider from './components/ToastProvider';
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <ProductProvider>
+function App() {
+  return (
+    <StoreProvider>
       <CurrencyProvider>
-        <FontProvider>
-          <StoreProvider>
-            <TooltipProvider>
-              <Toaster />
-              <Sonner />
-              <BrowserRouter>
-                <Routes>
-                  <Route path="/" element={<Index />} />
-                  <Route path="/adminpanel" element={<Admin />} />
-                  <Route path="/product/:id" element={<ProductDetails />} />
-                  <Route path="*" element={<NotFound />} />
-                </Routes>
-              </BrowserRouter>
-            </TooltipProvider>
-          </StoreProvider>
-        </FontProvider>
+        <ProductProvider>
+          <Router>
+            <Routes>
+              <Route path="/" element={<Index />} />
+              <Route path="/admin" element={<Admin />} />
+            </Routes>
+          </Router>
+          <ToastProvider />
+        </ProductProvider>
       </CurrencyProvider>
-    </ProductProvider>
-  </QueryClientProvider>
-);
+    </StoreProvider>
+  );
+}
 
 export default App;
