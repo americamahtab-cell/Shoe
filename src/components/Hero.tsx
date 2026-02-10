@@ -5,6 +5,13 @@ import { Button } from '@/components/ui/button';
 import { ArrowRight } from 'lucide-react';
 
 const Hero = () => {
+  const scrollToProducts = () => {
+    const element = document.getElementById('products-section');
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
   return (
     <div className="relative overflow-hidden bg-secondary/30 py-16 md:py-24">
       <div className="container px-4 md:px-8">
@@ -20,10 +27,19 @@ const Hero = () => {
               Whereas recognition of the inherent dignity
             </p>
             <div className="flex flex-wrap gap-4">
-              <Button size="lg" className="rounded-full px-8 h-14 text-base font-bold">
+              <Button 
+                size="lg" 
+                className="rounded-full px-8 h-14 text-base font-bold"
+                onClick={scrollToProducts}
+              >
                 Shop Now <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
-              <Button size="lg" variant="outline" className="rounded-full px-8 h-14 text-base font-bold">
+              <Button 
+                size="lg" 
+                variant="outline" 
+                className="rounded-full px-8 h-14 text-base font-bold"
+                onClick={scrollToProducts}
+              >
                 View Collection
               </Button>
             </div>
