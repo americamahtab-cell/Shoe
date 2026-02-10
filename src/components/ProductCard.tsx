@@ -20,14 +20,23 @@ const ProductCard = ({ shoe, onAddToCart }: ProductCardProps) => {
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
+  // Safety check for images array
+  const images = shoe.images || [];
+  const hasImages = images.length > 0;
+  const currentImage = hasImages ? images[currentImageIndex] : '/placeholder.svg';
+
   const nextImage = (e: React.MouseEvent) => {
     e.stopPropagation();
-    setCurrentImageIndex((prev) => (prev + 1) % shoe.images.length);
+    if (images.length > 0) {
+      setCurrentImageIndex((prev) => (prev + 1) % images.length);
+    }
   };
 
   const prevImage = (e: React.MouseEvent) => {
     e.stopPropagation();
-    setCurrentImageIndex((prev) => (prev - 1 + shoe.images.length) % shoe.images.length);
+    if (images.length > 0) {
+      setCurrentImageIndex((prev) => (prev - 1 + images.length) % images.length);
+    }
   };
 
   return (
@@ -39,7 +48,7 @@ const ProductCard = ({ shoe, onAddToCart }: ProductCardProps) => {
             <DialogTrigger asChild>
               <div className="relative h-full w-full cursor-zoom-in overflow-hidden">
                 <img 
-                  src={shoe.images[currentImageIndex]} 
+                  src={currentImage} 
                   alt={shoe.name} 
                   className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
                 />
@@ -51,7 +60,7 @@ const ProductCard = ({ shoe, onAddToCart }: ProductCardProps) => {
             <DialogContent className="max-w-3xl p-0 overflow-hidden border-none bg-transparent shadow-none sm:rounded-3xl">
               <div className="relative aspect-square w-full bg-secondary/20 backdrop-blur-sm flex items-center justify-center">
                 <img 
-                  src={shoe.images[currentImageIndex]} 
+                  src={currentImage} 
                   alt={shoe.name} 
                   className="max-h-[90vh] w-full object-contain rounded-2xl"
                 />
@@ -60,7 +69,7 @@ const ProductCard = ({ shoe, onAddToCart }: ProductCardProps) => {
           </Dialog>
 
           {/* Navigation Arrows */}
-          {shoe.images.length > 1 && (
+          {images.length > 1 && (
             <>
               <Button 
                 variant="ghost" 
@@ -81,7 +90,7 @@ const ProductCard = ({ shoe, onAddToCart }: ProductCardProps) => {
               
               {/* Dots Indicator */}
               <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5">
-                {shoe.images.map((_, i) => (
+                {images.map((_, i) => (
                   <div 
                     key={i} 
                     className={`h-1.5 w-1.5 rounded-full transition-all ${i === currentImageIndex ? 'bg-primary w-3' : 'bg-primary/30'}`}
