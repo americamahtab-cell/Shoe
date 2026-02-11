@@ -36,7 +36,7 @@ import {
   DialogFooter
 } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
-import { showSuccess } from '@/utils/toast';
+import { showSuccess, showError } from '@/utils/toast';
 import { useCurrency } from '@/context/CurrencyContext';
 
 const ProductManager = () => {
@@ -69,33 +69,36 @@ const ProductManager = () => {
     setPreviewImages(prev => prev.filter((_, i) => i !== index));
   };
 
-  const handleSave = (e: React.FormEvent) => {
+  const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     const formData = new FormData(e.target as HTMLFormElement);
     const name = formData.get('name') as string;
     const brand = formData.get('brand') as string;
     const price = Number(formData.get('price'));
 
-    if (editingShoe?.id) {
-      updateProduct({ ...editingShoe, name, brand, price, images: previewImages } as Shoe);
-      showSuccess("Product updated successfully");
-    } else {
-      const newShoe: Shoe = {
-        id: Math.random().toString(36).substr(2, 9),
-        name,
-        brand,
-        price,
-        images: previewImages,
-        category: 'Lifestyle',
-        color: 'Default'
-      };
-      addProduct(newShoe);
-      showSuccess("New product added");
-    }
+    try {
+      if (editingShoe?.id) {
+        await updateProduct({ ...editingShoe, name, brand, price, images: previewImages } as Shoe);
+        showSuccess("Product updated successfully");
+      } else {
+        const newShoeData = {
+          name,
+          brand,
+          price,
+          images: previewImages,
+          category: 'Lifestyle' as const,
+          color: 'Default'
+        };
+        await addProduct(newShoeData);
+        showSuccess("New product added");
+      }
 
-    setIsDialogOpen(false);
-    setEditingShoe(null);
-    setPreviewImages([]);
+      setIsDialogOpen(false);
+      setEditingShoe(null);
+      setPreviewImages([]);
+    } catch (err: any) {
+      showError(err.message || "Something went wrong");
+    }
   };
 
   const openEditDialog = (shoe: Shoe) => {

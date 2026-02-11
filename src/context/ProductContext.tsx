@@ -26,7 +26,7 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ child
       .order('created_at', { ascending: false });
 
     if (error) {
-      console.error('Error fetching products:', error);
+      console.error('Error fetching products:', error.message);
     } else {
       setProducts(data || []);
     }
@@ -44,8 +44,7 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ child
       .select();
 
     if (error) {
-      console.error('Error adding product:', error);
-      throw error;
+      throw new Error(error.message);
     }
     if (data) {
       setProducts(prev => [data[0], ...prev]);
@@ -59,8 +58,7 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ child
       .eq('id', updatedShoe.id);
 
     if (error) {
-      console.error('Error updating product:', error);
-      throw error;
+      throw new Error(error.message);
     }
     setProducts(prev => prev.map(s => s.id === updatedShoe.id ? updatedShoe : s));
   };
@@ -72,8 +70,7 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ child
       .eq('id', id);
 
     if (error) {
-      console.error('Error deleting product:', error);
-      throw error;
+      throw new Error(error.message);
     }
     setProducts(prev => prev.filter(s => s.id !== id));
   };
