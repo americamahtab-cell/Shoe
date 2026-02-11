@@ -1,33 +1,49 @@
 "use client";
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { supabase } from '@/integrations/supabase/client';
 
 export type FontOption = 'font-sans' | 'font-serif' | 'font-mono';
 
 interface FontContextType {
   fontFamily: FontOption;
-  setFontFamily: (font: FontOption) => void;
+  setFontFamily: (font: FontOption) => Promise<void>;
 }
 
 const FontContext = createContext<FontContextType | undefined>(undefined);
 
 export const FontProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [fontFamily, setFontFamily] = useState<FontOption>('font-sans');
+  const [fontFamily, setFontFamilyState] = useState<FontOption>('font-sans');
 
   useEffect(() => {
-    const savedFont = localStorage.getItem('solesphere_font');
-    if (savedFont) {
-      setFontFamily(savedFont as FontOption);
-    }
+    const fetchFont = async () => {
+      const { data, error } = await supabase
+        .from('settings')
+        .select('value')
+        .eq('key', 'font_family')
+        .single();
+
+      if (data) {
+        setFontFamilyState(data.value as FontOption);
+      }
+    };
+    fetchFont();
   }, []);
 
-  const updateFont = (font: FontOption) => {
-    setFontFamily(font);
-    localStorage.setItem('solesphere_font', font);
+  const setFontFamily = async (font: FontOption) => {
+    const { error } = await supabase
+      .from('settings')
+      .upsert({ key: 'font_family', value: font });
+
+    if (error) {
+      console.error('Error saving font:', error);
+      throw error;
+    }
+    setFontFamilyState(font);
   };
 
   return (
-    <FontContext.Provider value={{ fontFamily, setFontFamily: updateFont }}>
+    <FontContext.Provider value={{ fontFamily, setFontFamily }}>
       <div className={fontFamily}>
         {children}
       </div>

@@ -1,44 +1,64 @@
 "use client";
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { supabase } from '@/integrations/supabase/client';
+
+interface StoreInfo {
+  name: string;
+  email: string;
+  description: string;
+}
 
 interface StoreContextType {
   storeName: string;
   storeEmail: string;
   storeDescription: string;
-  setStoreInfo: (info: { name: string; email: string; description: string }) => void;
+  setStoreInfo: (info: StoreInfo) => Promise<void>;
 }
 
 const StoreContext = createContext<StoreContextType | undefined>(undefined);
 
 export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [storeName, setStoreName] = useState("SOLESPHERE");
-  const [storeEmail, setStoreEmail] = useState("support@solesphere.com");
-  const [storeDescription, setStoreDescription] = useState("The ultimate destination for sneakerheads.");
+  const [info, setInfo] = useState<StoreInfo>({
+    name: "SOLESPHERE",
+    email: "support@solesphere.com",
+    description: "The ultimate destination for sneakerheads."
+  });
 
   useEffect(() => {
-    const savedStore = localStorage.getItem('solesphere_store_info');
-    if (savedStore) {
-      try {
-        const info = JSON.parse(savedStore);
-        setStoreName(info.name || "SOLESPHERE");
-        setStoreEmail(info.email || "support@solesphere.com");
-        setStoreDescription(info.description || "The ultimate destination for sneakerheads.");
-      } catch (e) {
-        console.error("Failed to parse store info", e);
+    const fetchStoreInfo = async () => {
+      const { data, error } = await supabase
+        .from('settings')
+        .select('value')
+        .eq('key', 'store_info')
+        .single();
+
+      if (data) {
+        setInfo(data.value as StoreInfo);
       }
-    }
+    };
+    fetchStoreInfo();
   }, []);
 
-  const setStoreInfo = (info: { name: string; email: string; description: string }) => {
-    setStoreName(info.name);
-    setStoreEmail(info.email);
-    setStoreDescription(info.description);
-    localStorage.setItem('solesphere_store_info', JSON.stringify(info));
+  const setStoreInfo = async (newInfo: StoreInfo) => {
+    const { error } = await supabase
+      .from('settings')
+      .upsert({ key: 'store_info', value: newInfo });
+
+    if (error) {
+      console.error('Error saving store info:', error);
+      throw error;
+    }
+    setInfo(newInfo);
   };
 
   return (
-    <StoreContext.Provider value={{ storeName, storeEmail, storeDescription, setStoreInfo }}>
+    <StoreContext.Provider value={{ 
+      storeName: info.name, 
+      storeEmail: info.email, 
+      storeDescription: info.description, 
+      setStoreInfo 
+    }}>
       {children}
     </StoreContext.Provider>
   );

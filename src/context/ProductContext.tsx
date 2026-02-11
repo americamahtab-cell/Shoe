@@ -1,49 +1,85 @@
 "use client";
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { shoes as initialShoes, Shoe } from '@/data/shoes';
+import { Shoe } from '@/data/shoes';
+import { supabase } from '@/integrations/supabase/client';
 
 interface ProductContextType {
   products: Shoe[];
-  addProduct: (shoe: Shoe) => void;
-  updateProduct: (shoe: Shoe) => void;
-  deleteProduct: (id: string) => void;
+  addProduct: (shoe: Omit<Shoe, 'id'>) => Promise<void>;
+  updateProduct: (shoe: Shoe) => Promise<void>;
+  deleteProduct: (id: string) => Promise<void>;
+  isLoading: boolean;
 }
 
 const ProductContext = createContext<ProductContextType | undefined>(undefined);
 
 export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [products, setProducts] = useState<Shoe[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  const fetchProducts = async () => {
+    setIsLoading(true);
+    const { data, error } = await supabase
+      .from('products')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.error('Error fetching products:', error);
+    } else {
+      setProducts(data || []);
+    }
+    setIsLoading(false);
+  };
 
   useEffect(() => {
-    const savedProducts = localStorage.getItem('solesphere_products');
-    if (savedProducts) {
-      setProducts(JSON.parse(savedProducts));
-    } else {
-      setProducts(initialShoes);
-    }
+    fetchProducts();
   }, []);
 
-  useEffect(() => {
-    if (products.length > 0) {
-      localStorage.setItem('solesphere_products', JSON.stringify(products));
+  const addProduct = async (shoe: Omit<Shoe, 'id'>) => {
+    const { data, error } = await supabase
+      .from('products')
+      .insert([shoe])
+      .select();
+
+    if (error) {
+      console.error('Error adding product:', error);
+      throw error;
     }
-  }, [products]);
-
-  const addProduct = (shoe: Shoe) => {
-    setProducts((prev) => [shoe, ...prev]);
+    if (data) {
+      setProducts(prev => [data[0], ...prev]);
+    }
   };
 
-  const updateProduct = (updatedShoe: Shoe) => {
-    setProducts((prev) => prev.map(s => s.id === updatedShoe.id ? updatedShoe : s));
+  const updateProduct = async (updatedShoe: Shoe) => {
+    const { error } = await supabase
+      .from('products')
+      .update(updatedShoe)
+      .eq('id', updatedShoe.id);
+
+    if (error) {
+      console.error('Error updating product:', error);
+      throw error;
+    }
+    setProducts(prev => prev.map(s => s.id === updatedShoe.id ? updatedShoe : s));
   };
 
-  const deleteProduct = (id: string) => {
-    setProducts((prev) => prev.filter(s => s.id !== id));
+  const deleteProduct = async (id: string) => {
+    const { error } = await supabase
+      .from('products')
+      .delete()
+      .eq('id', id);
+
+    if (error) {
+      console.error('Error deleting product:', error);
+      throw error;
+    }
+    setProducts(prev => prev.filter(s => s.id !== id));
   };
 
   return (
-    <ProductContext.Provider value={{ products, addProduct, updateProduct, deleteProduct }}>
+    <ProductContext.Provider value={{ products, addProduct, updateProduct, deleteProduct, isLoading }}>
       {children}
     </ProductContext.Provider>
   );

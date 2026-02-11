@@ -1,6 +1,7 @@
 "use client";
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { supabase } from '@/integrations/supabase/client';
 
 export type Currency = {
   code: string;
@@ -16,7 +17,7 @@ export const currencies: Record<string, Currency> = {
 
 interface CurrencyContextType {
   currency: Currency;
-  setCurrencyByCode: (code: string) => void;
+  setCurrencyByCode: (code: string) => Promise<void>;
   formatPrice: (price: number) => string;
 }
 
@@ -26,21 +27,35 @@ export const CurrencyProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const [currency, setCurrency] = useState<Currency>(currencies.USD);
 
   useEffect(() => {
-    const savedCurrency = localStorage.getItem('solesphere_currency');
-    if (savedCurrency && currencies[savedCurrency]) {
-      setCurrency(currencies[savedCurrency]);
-    }
+    const fetchCurrency = async () => {
+      const { data, error } = await supabase
+        .from('settings')
+        .select('value')
+        .eq('key', 'currency_code')
+        .single();
+
+      if (data && currencies[data.value as string]) {
+        setCurrency(currencies[data.value as string]);
+      }
+    };
+    fetchCurrency();
   }, []);
 
-  const setCurrencyByCode = (code: string) => {
+  const setCurrencyByCode = async (code: string) => {
     if (currencies[code]) {
+      const { error } = await supabase
+        .from('settings')
+        .upsert({ key: 'currency_code', value: code });
+
+      if (error) {
+        console.error('Error saving currency:', error);
+        throw error;
+      }
       setCurrency(currencies[code]);
-      localStorage.setItem('solesphere_currency', code);
     }
   };
 
   const formatPrice = (price: number) => {
-    // Now it just shows the symbol + the exact price you entered
     return `${currency.symbol}${price.toLocaleString()}`;
   };
 
